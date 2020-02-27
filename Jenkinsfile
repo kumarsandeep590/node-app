@@ -9,6 +9,14 @@ pipeline {
                 sh "docker build . -t kumarsandeep590/newapp:${DOCKER_TAG}"
                 }
                 }
+        stage('DockerHub Push'){
+            withCredentials([string(credentialsId: 'DockerHub', variable: 'dockerHubPwd')]) {
+                sh "docker login -u kumarsandeep590 -p ${dockerHubPwd}"
+                sh "docker push kumarsandeep590/nodeapp ${DOCKER_TAG}"
+            }
+            
+            
+           }
                 }
                 }
                 def getDockerTag(){
