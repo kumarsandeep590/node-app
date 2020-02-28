@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nodeapp
+  name: node-app
   labels:
-    app: nodeapp
+    app: node-pp
 spec:
   containers:
-    - name: nodeapp
-      image: kammana/nodeapp:tagVersion
+    - name: node-app
+      image: kumarsandeep590/node-app:tagVersion
       ports:
         - containerPort: 8080
