@@ -4,7 +4,7 @@ pipeline {
         PROJECT_ID = 'elevated-range-270006'
         CLUSTER_NAME = 'kubectl'
         LOCATION = 'us-east1-c'
-        CREDENTIALS_ID = 'gke'
+        CREDENTIALS_ID = 'My First Project'
     }
     stages {
         stage("Checkout code") {
