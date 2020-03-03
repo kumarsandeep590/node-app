@@ -34,6 +34,5 @@ pipeline {
             return tag
         }
     }
-}
 
        
