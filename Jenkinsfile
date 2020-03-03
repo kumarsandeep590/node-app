@@ -1,38 +1,39 @@
 pipeline {
     agent any
-    environment{
-        DOCKER_TAG = getDockerTag()
+    environment {
+        PROJECT_ID = 'elevated-range-270006'
+        CLUSTER_NAME = 'kubectl'
+        LOCATION = 'us-east1-c'
+        CREDENTIALS_ID = 'gke'
     }
-    stages{
-        stage('Build Docker Image'){
-            steps{
-                sh "docker build . -t kumarsandeep590/node-app:${DOCKER_TAG}"
+    stages {
+        stage("Checkout code") {
+            steps {
+                checkout scm
             }
         }
-        stage('DockerHub Push'){
-            steps{
-                withCredentials([string(credentialsId: 'DockerHub', variable: 'DockerHub')]) {
-                    sh "docker login -u kumarsandeep590 -p ${DockerHub}"
-                    sh "docker push kumarsandeep590/node-app:${DOCKER_TAG}"
+        stage("Build image") {
+            steps {
+                script {
+                    myapp = docker.build("kumarsandeep590/node-app:${env.BUILD_ID}")
                 }
             }
         }
-        stage('Deploy Production'){
+        stage("Push image") {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                            myapp.push("latest")
+                            myapp.push("${env.BUILD_ID}")
+                    }
+                }
+            }
+        }        
+        stage('Deploy to GKE') {
             steps{
-               git url: 'https://github.com/viglesiasce/sample-app'
-                step([$class: 'KubernetesEngineBuilder', 
-                        projectId: "elevated-range-270006",
-                        clusterName: "production",
-                        zone: "us-central1-f",
-                        manifestPattern: 'k8s/production/',
-                        credentialsId: "gke-service-account",
-                        verifyDeployments: true])
+                sh "sed -i 's/node-app:latest/node-app:${env.BUILD_ID}/g' deployment.yaml"
+                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
-        def getDockerTag(){
-            def tag = sh script: 'git rev-parse HEAD', returnStdout: true
-            return tag
-        }
-    }
-
-       
+    }    
+}
