@@ -10,6 +10,7 @@ pipeline {
         stage("Checkout code") {
             steps {
                 checkout scm
+            }
         }
         stage("Build image") {
                 script {
