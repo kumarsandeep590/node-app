@@ -27,13 +27,13 @@ pipeline {
                         manifestPattern: 'k8s/production/',
                         credentialsId: "gke-service-account",
                         verifyDeployments: true])
-                        
-                    
-                }
             }
-    
-def getDockerTag(){
-    def tag = sh script: 'git rev-parse HEAD', returnStdout: true
-    return tag
-}
+        }
+        def getDockerTag(){
+            def tag = sh script: 'git rev-parse HEAD', returnStdout: true
+            return tag
+        }
     }
+}
+
+       
