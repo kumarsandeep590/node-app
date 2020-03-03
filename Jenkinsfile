@@ -10,10 +10,10 @@ pipeline {
         stage("Checkout code") {
             steps {
                 checkout scm
+            steps {
             }
         }
         stage("Build image") {
-            steps {
                 script {
                     myapp = docker.build("kumarsandeep590/node-app:${env.BUILD_ID}")
                 }
@@ -22,7 +22,7 @@ pipeline {
         stage("Push image") {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'DockerHub') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                             myapp.push("latest")
                             myapp.push("${env.BUILD_ID}")
                     }
@@ -31,7 +31,7 @@ pipeline {
         }        
         stage('Deploy to GKE') {
             steps{
-                sh "sed -i 's/node-app:latest/node-app:${env.BUILD_ID}/g' deployment.yaml"
+                sh "sed -i 's/node-app:latest/node-app:${env.BUILD_ID}/g' services.yml"
                 step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
