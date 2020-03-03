@@ -19,16 +19,14 @@ pipeline {
                 }
             }
         }
-        stage("Push image") {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                            myapp.push("latest")
-                            myapp.push("${env.BUILD_ID}")
-                    }
+        stage('DockerHub Push'){
+            steps{
+                withCredentials([string(credentialsId: 'DockerHub', variable: 'DockerHub')]) {
+                    sh "docker login -u kumarsandeep590 -p ${DockerHub}"
+                    sh "docker push kumarsandeep590/node-app:${env.BUILD_ID}"
                 }
             }
-        }        
+        }
         stage('Deploy to GKE') {
             steps{
                 sh "sed -i 's/node-app:latest/node-app:${env.BUILD_ID}/g' services.yml"
