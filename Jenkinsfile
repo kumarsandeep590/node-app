@@ -13,6 +13,7 @@ pipeline {
             }
         }
         stage("Build image") {
+            steps {
                 script {
                     myapp = docker.build("kumarsandeep590/node-app:${env.BUILD_ID}")
                 }
